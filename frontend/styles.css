@@ -1,0 +1,582 @@
+/**
+ * TODO 앱 - 모던 미니멀리스트 디자인
+ * 깔끔한 레이아웃, 부드러운 애니메이션, 다크/라이트 모드 지원
+ */
+
+/* ============================================
+   CSS 변수 - 라이트 모드 (기본)
+   ============================================ */
+:root,
+[data-theme="light"] {
+  --bg-primary: #fafafa;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f5f5f5;
+  --text-primary: #1a1a1a;
+  --text-secondary: #737373;
+  --text-tertiary: #a3a3a3;
+  --border-light: #e5e5e5;
+  --border-medium: #d4d4d4;
+  --accent: #2563eb;
+  --accent-light: #eff6ff;
+  --accent-hover: #1d4ed8;
+  --success: #10b981;
+  --danger: #ef4444;
+  --danger-bg: #fef2f2;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
+}
+
+/* ============================================
+   CSS 변수 - 다크 모드
+   ============================================ */
+[data-theme="dark"] {
+  --bg-primary: #0a0a0a;
+  --bg-secondary: #141414;
+  --bg-tertiary: #1a1a1a;
+  --text-primary: #fafafa;
+  --text-secondary: #a3a3a3;
+  --text-tertiary: #525252;
+  --border-light: #262626;
+  --border-medium: #404040;
+  --accent: #3b82f6;
+  --accent-light: rgba(59, 130, 246, 0.2);
+  --accent-hover: #60a5fa;
+  --success: #22c55e;
+  --danger: #f87171;
+  --danger-bg: rgba(248, 113, 113, 0.1);
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+}
+
+/* 시스템 다크 모드 자동 감지 (사용자 설정 없을 때만) */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg-primary: #0a0a0a;
+    --bg-secondary: #141414;
+    --bg-tertiary: #1a1a1a;
+    --text-primary: #fafafa;
+    --text-secondary: #a3a3a3;
+    --text-tertiary: #525252;
+    --border-light: #262626;
+    --border-medium: #404040;
+    --accent: #3b82f6;
+    --accent-light: rgba(59, 130, 246, 0.2);
+    --accent-hover: #60a5fa;
+    --success: #22c55e;
+    --danger: #f87171;
+    --danger-bg: rgba(248, 113, 113, 0.1);
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+  }
+}
+
+/* 둥근 모서리, 간격, 애니메이션 */
+:root {
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-full: 9999px;
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ============================================
+   초기화 및 기본 스타일
+   ============================================ */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  transition: background-color var(--transition-normal), color var(--transition-normal);
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.6;
+  min-height: 100vh;
+  padding: var(--spacing-md);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ============================================
+   컨테이너
+   ============================================ */
+.container {
+  max-width: 580px;
+  margin: 0 auto;
+}
+
+/* ============================================
+   헤더
+   ============================================ */
+header {
+  margin-bottom: var(--spacing-xl);
+  padding: var(--spacing-lg) 0;
+}
+
+.header-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--spacing-md);
+  position: relative;
+}
+
+header h1 {
+  font-size: 1.75rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+}
+
+/* ============================================
+   테마 토글 버튼
+   ============================================ */
+.theme-toggle {
+  position: absolute;
+  right: 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  color: var(--text-primary);
+}
+
+.theme-toggle:hover {
+  background: var(--bg-tertiary);
+  border-color: var(--border-medium);
+}
+
+.theme-toggle svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* 아이콘 표시/숨김 */
+[data-theme="light"] .theme-toggle .sun-icon,
+[data-theme="light"] .theme-toggle .moon-icon {
+  display: block;
+}
+
+[data-theme="dark"] .theme-toggle .sun-icon,
+[data-theme="dark"] .theme-toggle .moon-icon {
+  display: block;
+}
+
+/* 기본 상태 (data-theme 속성 없을 때) */
+.theme-toggle .sun-icon {
+  display: none;
+}
+
+.theme-toggle .moon-icon {
+  display: block;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .theme-toggle .sun-icon {
+    display: none;
+  }
+  :root:not([data-theme="light"]) .theme-toggle .moon-icon {
+    display: block;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) .theme-toggle .sun-icon {
+    display: block;
+  }
+  :root:not([data-theme="dark"]) .theme-toggle .moon-icon {
+    display: none;
+  }
+}
+
+/* data-theme로 명시적으로 설정 시 우선 적용 */
+[data-theme="light"] .theme-toggle .sun-icon { display: block; }
+[data-theme="light"] .theme-toggle .moon-icon { display: none; }
+
+[data-theme="dark"] .theme-toggle .sun-icon { display: none; }
+[data-theme="dark"] .theme-toggle .moon-icon { display: block; }
+
+/* ============================================
+   TODO 추가 폼
+   ============================================ */
+.todo-form {
+  background: var(--bg-secondary);
+  padding: var(--spacing-lg);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-light);
+  margin-bottom: var(--spacing-lg);
+  transition: box-shadow var(--transition-normal);
+}
+
+.todo-form:focus-within {
+  box-shadow: var(--shadow-md);
+  border-color: var(--border-medium);
+}
+
+#title-input,
+#desc-input {
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--bg-tertiary);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  font-size: 0.9375rem;
+  font-family: inherit;
+  color: var(--text-primary);
+  transition: all var(--transition-fast);
+}
+
+#title-input {
+  font-weight: 500;
+  margin-bottom: var(--spacing-sm);
+}
+
+#title-input::placeholder {
+  color: var(--text-tertiary);
+}
+
+#desc-input {
+  resize: vertical;
+  min-height: 72px;
+  line-height: 1.5;
+  margin-bottom: var(--spacing-md);
+}
+
+#title-input:focus,
+#desc-input:focus {
+  outline: none;
+  background: var(--bg-secondary);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-light);
+}
+
+.btn-primary {
+  width: 100%;
+  padding: 0.75rem var(--spacing-lg);
+  background: var(--text-primary);
+  color: var(--bg-primary);
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+/* ============================================
+   통계 섹션
+   ============================================ */
+.stats {
+  display: flex;
+  justify-content: center;
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+  padding: var(--spacing-md);
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-top: var(--spacing-xs);
+}
+
+/* ============================================
+   필터 버튼
+   ============================================ */
+.filters {
+  display: flex;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+  justify-content: center;
+}
+
+.filter-btn {
+  padding: 0.5rem var(--spacing-md);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-full);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.filter-btn:hover {
+  color: var(--text-primary);
+  background: var(--bg-tertiary);
+}
+
+.filter-btn.active {
+  background: var(--text-primary);
+  color: var(--bg-primary);
+}
+
+/* ============================================
+   TODO 목록
+   ============================================ */
+.todo-list {
+  list-style: none;
+}
+
+.todo-item {
+  background: var(--bg-secondary);
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-light);
+  margin-bottom: var(--spacing-sm);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+  transition: all var(--transition-normal);
+  animation: slideIn var(--transition-normal) ease;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.todo-item:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.todo-item.completed {
+  background: var(--bg-tertiary);
+  opacity: 0.8;
+}
+
+.todo-item.completed .todo-title {
+  text-decoration: line-through;
+  color: var(--text-tertiary);
+}
+
+.todo-item.completed .todo-desc {
+  color: var(--text-tertiary);
+}
+
+/* ============================================
+   커스텀 체크박스
+   ============================================ */
+.todo-checkbox {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 22px;
+  height: 22px;
+  min-width: 22px;
+  margin-top: 2px;
+  cursor: pointer;
+  border: 2px solid var(--border-medium);
+  border-radius: var(--radius-sm);
+  background: var(--bg-secondary);
+  position: relative;
+  transition: all var(--transition-fast);
+}
+
+.todo-checkbox:hover {
+  border-color: var(--accent);
+}
+
+.todo-checkbox:checked {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.todo-checkbox:checked::after {
+  content: '';
+  position: absolute;
+  left: 6px;
+  top: 2px;
+  width: 5px;
+  height: 10px;
+  border: solid var(--bg-secondary);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+/* ============================================
+   TODO 내용
+   ============================================ */
+.todo-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.todo-title {
+  font-weight: 500;
+  font-size: 0.9375rem;
+  margin-bottom: 0.125rem;
+  word-break: break-word;
+  line-height: 1.4;
+}
+
+.todo-desc {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  word-break: break-word;
+  line-height: 1.5;
+}
+
+.todo-meta {
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+  margin-top: var(--spacing-sm);
+}
+
+/* ============================================
+   삭제 버튼
+   ============================================ */
+.btn-delete {
+  padding: var(--spacing-sm);
+  background: transparent;
+  border: none;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-delete:hover {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+.btn-delete svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* ============================================
+   로딩 및 에러
+   ============================================ */
+.loading {
+  text-align: center;
+  padding: var(--spacing-xl);
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+.error {
+  background: var(--danger-bg);
+  color: var(--danger);
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-md);
+  font-size: 0.875rem;
+}
+
+/* ============================================
+   빈 상태
+   ============================================ */
+.empty-state {
+  text-align: center;
+  padding: var(--spacing-xl) var(--spacing-md);
+  color: var(--text-secondary);
+}
+
+.empty-state svg {
+  width: 56px;
+  height: 56px;
+  margin-bottom: var(--spacing-md);
+  opacity: 0.3;
+}
+
+.empty-state p {
+  font-size: 0.9375rem;
+}
+
+/* ============================================
+   유틸리티
+   ============================================ */
+.hidden {
+  display: none !important;
+}
+
+/* ============================================
+   반응형 디자인
+   ============================================ */
+@media (max-width: 480px) {
+  body {
+    padding: var(--spacing-sm);
+  }
+
+  header {
+    margin-bottom: var(--spacing-lg);
+    padding: var(--spacing-md) 0;
+  }
+
+  header h1 {
+    font-size: 1.5rem;
+  }
+
+  .todo-form {
+    padding: var(--spacing-md);
+  }
+
+  .todo-item {
+    padding: var(--spacing-sm) var(--spacing-md);
+  }
+
+  .filters {
+    flex-wrap: wrap;
+  }
+
+  .filter-btn {
+    flex: 1;
+    min-width: 70px;
+    padding: 0.5rem var(--spacing-sm);
+    font-size: 0.8125rem;
+  }
+}
